@@ -1,0 +1,18 @@
+@'
+.env
+**/.env
+!.env.example
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+*.log
+node_modules/
+dist/
+build/
+*.db
+*.sqlite
+*.sqlite3
+'@ | Set-Content .gitignore

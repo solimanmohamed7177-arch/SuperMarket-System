@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SuperMarket MS</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-store"></i>
+            <div>
+                <h2>SuperMarket</h2>
+                <span>Management System</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Main</div>
+            <a href="dashboard.html" class="nav-item active">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </a>
+
+            <div class="nav-section-title">Sales</div>
+            <a href="sales.html" class="nav-item">
+                <i class="fas fa-cash-register"></i> Point of Sale
+            </a>
+            <a href="sales-return.html" class="nav-item">
+                <i class="fas fa-undo"></i> Sales Returns
+            </a>
+            <a href="shifts.html" class="nav-item">
+                <i class="fas fa-clock"></i> Shifts
+            </a>
+
+            <div class="nav-section-title">Inventory</div>
+            <a href="products.html" class="nav-item">
+                <i class="fas fa-box"></i> Products
+            </a>
+            <a href="categories.html" class="nav-item">
+                <i class="fas fa-tags"></i> Categories
+            </a>
+            <a href="inventory.html" class="nav-item">
+                <i class="fas fa-warehouse"></i> Inventory
+            </a>
+            <a href="purchase-orders.html" class="nav-item">
+                <i class="fas fa-truck"></i> Purchase Orders
+                <span class="nav-badge" id="pendingPO">0</span>
+            </a>
+
+            <div class="nav-section-title">CRM</div>
+            <a href="customers.html" class="nav-item">
+                <i class="fas fa-users"></i> Customers
+            </a>
+            <a href="loyalty.html" class="nav-item">
+                <i class="fas fa-star"></i> Loyalty Program
+            </a>
+            <a href="discounts.html" class="nav-item">
+                <i class="fas fa-percent"></i> Discounts
+            </a>
+
+            <div class="nav-section-title">Management</div>
+            <a href="employees.html" class="nav-item">
+                <i class="fas fa-user-tie"></i> Employees
+            </a>
+            <a href="suppliers.html" class="nav-item">
+                <i class="fas fa-industry"></i> Suppliers
+            </a>
+            <a href="reports.html" class="nav-item">
+                <i class="fas fa-chart-bar"></i> Reports
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div>
+                    <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role" id="userRole">Manager</div>
+                </div>
+                <button class="btn-logout" onclick="logout()" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- TOP HEADER -->
+        <header class="top-header">
+            <button class="icon-btn" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="header-title">
+                <h2>Dashboard</h2>
+                <p id="currentDate">Today</p>
+            </div>
+            <div class="header-actions">
+                <div class="header-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <button class="icon-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notif-dot"></span>
+                </button>
+                <button class="icon-btn">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- PAGE CONTENT -->
+        <div class="page-content">
+
+            <!-- STAT CARDS -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="todaySales">$0</h3>
+                        <p>Today's Sales</p>
+                        <div class="stat-change up" id="salesChange">
+                            <i class="fas fa-arrow-up"></i> 0%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="todayOrders">0</h3>
+                        <p>Today's Orders</p>
+                        <div class="stat-change up" id="ordersChange">
+                            <i class="fas fa-arrow-up"></i> 0%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalProducts">0</h3>
+                        <p>Total Products</p>
+                        <div class="stat-change" id="productsInfo">Active items</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon red">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="lowStock">0</h3>
+                        <p>Low Stock Items</p>
+                        <div class="stat-change down">Needs attention</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalCustomers">0</h3>
+                        <p>Total Customers</p>
+                        <div class="stat-change up" id="customersChange">
+                            <i class="fas fa-arrow-up"></i> 0%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon cyan">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="pendingOrders">0</h3>
+                        <p>Pending PO's</p>
+                        <div class="stat-change warning">Awaiting delivery</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHARTS ROW -->
+            <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px; margin-bottom:25px;">
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-line" style="color:var(--primary)"></i> Sales Overview</h3>
+                        <div class="card-actions">
+                            <select class="form-control form-select" style="width:auto;" id="salesChartPeriod">
+                                <option value="7">Last 7 Days</option>
+                                <option value="30">Last 30 Days</option>
+                                <option value="90">Last 3 Months</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="padding:20px;">
+                        <canvas id="salesChart" height="100"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-pie" style="color:var(--warning)"></i> Sales by Category</h3>
+                    </div>
+                    <div style="padding:20px;">
+                        <canvas id="categoryChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RECENT SALES TABLE -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-receipt" style="color:var(--success)"></i> Recent Sales</h3>
+                    <a href="sales.html" class="btn btn-outline btn-sm">View All</a>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sale ID</th>
+                                <th>Customer</th>
+                                <th>Branch</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentSalesTable">
+                            <tr>
+                                <td colspan="7" style="text-align:center; padding:30px; color:var(--secondary)">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/dashboard.js"></script>
+</body>
+</html>

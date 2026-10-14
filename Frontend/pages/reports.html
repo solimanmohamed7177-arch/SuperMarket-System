@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - SuperMarket MS</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-store"></i>
+            <div><h2>SuperMarket</h2><span>Management System</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Main</div>
+            <a href="dashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <div class="nav-section-title">Sales</div>
+            <a href="sales.html" class="nav-item"><i class="fas fa-cash-register"></i> Point of Sale</a>
+            <a href="sales-return.html" class="nav-item"><i class="fas fa-undo"></i> Sales Returns</a>
+            <a href="shifts.html" class="nav-item"><i class="fas fa-clock"></i> Shifts</a>
+            <div class="nav-section-title">Inventory</div>
+            <a href="products.html" class="nav-item"><i class="fas fa-box"></i> Products</a>
+            <a href="categories.html" class="nav-item"><i class="fas fa-tags"></i> Categories</a>
+            <a href="inventory.html" class="nav-item"><i class="fas fa-warehouse"></i> Inventory</a>
+            <a href="purchase-orders.html" class="nav-item"><i class="fas fa-truck"></i> Purchase Orders</a>
+            <div class="nav-section-title">CRM</div>
+            <a href="customers.html" class="nav-item"><i class="fas fa-users"></i> Customers</a>
+            <a href="loyalty.html" class="nav-item"><i class="fas fa-star"></i> Loyalty Program</a>
+            <a href="discounts.html" class="nav-item"><i class="fas fa-percent"></i> Discounts</a>
+            <div class="nav-section-title">Management</div>
+            <a href="employees.html" class="nav-item"><i class="fas fa-user-tie"></i> Employees</a>
+            <a href="suppliers.html" class="nav-item"><i class="fas fa-industry"></i> Suppliers</a>
+            <a href="reports.html" class="nav-item active"><i class="fas fa-chart-bar"></i> Reports</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div>
+                    <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role" id="userRole">Manager</div>
+                </div>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <header class="top-header">
+            <button class="icon-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <div class="header-title">
+                <h2>Reports & Analytics</h2>
+                <p>Business insights and performance</p>
+            </div>
+            <div class="header-actions">
+                <!-- Date Range Filter -->
+                <input type="date" class="form-control" id="dateFrom"
+                    style="width:145px;" onchange="refreshAllReports()">
+                <span style="color:var(--secondary);font-size:13px;">to</span>
+                <input type="date" class="form-control" id="dateTo"
+                    style="width:145px;" onchange="refreshAllReports()">
+                <button class="btn btn-primary" onclick="exportAllPDF()">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </button>
+                <button class="icon-btn"><i class="fas fa-bell"></i><span class="notif-dot"></span></button>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <!-- KPI CARDS -->
+            <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="stat-info">
+                        <h3 id="kpiRevenue">$0</h3>
+                        <p>Total Revenue</p>
+                        <div class="stat-change up" id="kpiRevenueChange">
+                            <i class="fas fa-arrow-up"></i> 0%
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-chart-line"></i></div>
+                    <div class="stat-info">
+                        <h3 id="kpiProfit">$0</h3>
+                        <p>Gross Profit</p>
+                        <div class="stat-change up" id="kpiProfitChange">
+                            <i class="fas fa-arrow-up"></i> 0%
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="stat-info">
+                        <h3 id="kpiOrders">0</h3>
+                        <p>Total Orders</p>
+                        <div class="stat-change up" id="kpiOrdersChange">
+                            <i class="fas fa-arrow-up"></i> 0%
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fas fa-receipt"></i></div>
+                    <div class="stat-info">
+                        <h3 id="kpiAvgOrder">$0</h3>
+                        <p>Avg Order Value</p>
+                        <div class="stat-change up" id="kpiAvgChange">
+                            <i class="fas fa-arrow-up"></i> 0%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REPORT TABS -->
+            <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+                <button class="btn btn-primary"   id="tabSales"     onclick="switchReportTab('sales')">
+                    <i class="fas fa-chart-line"></i> Sales
+                </button>
+                <button class="btn btn-outline"   id="tabProducts"  onclick="switchReportTab('products')">
+                    <i class="fas fa-box"></i> Products
+                </button>
+                <button class="btn btn-outline"   id="tabInventory" onclick="switchReportTab('inventory')">
+                    <i class="fas fa-warehouse"></i> Inventory
+                </button>
+                <button class="btn btn-outline"   id="tabEmployees" onclick="switchReportTab('employees')">
+                    <i class="fas fa-users"></i> Employees
+                </button>
+            </div>
+
+            <!-- ===== SALES REPORT ===== -->
+            <div id="reportSales">
+                <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:20px;">
+                    <!-- Revenue Chart -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-area" style="color:var(--primary)"></i> Revenue Over Time</h3>
+                            <div class="card-actions">
+                                <select class="form-control form-select" id="revenueChartPeriod"
+                                    onchange="updateRevenueChart()" style="width:130px;">
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly" selected>Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="padding:20px;">
+                            <canvas id="revenueChart" height="110"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods Chart -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-credit-card" style="color:var(--success)"></i> Payment Methods</h3>
+                        </div>
+                        <div style="padding:20px;">
+                            <canvas id="paymentChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales by Branch -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-store" style="color:var(--warning)"></i> Sales by Branch</h3>
+                        </div>
+                        <div style="padding:20px;">
+                            <canvas id="branchChart" height="180"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Hourly Sales -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-clock" style="color:var(--info)"></i> Sales by Hour</h3>
+                        </div>
+                        <div style="padding:20px;">
+                            <canvas id="hourlyChart" height="180"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Sales Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-trophy" style="color:var(--warning)"></i> Top Sales Transactions</h3>
+                        <button class="btn btn-outline btn-sm" onclick="exportSalesCSV()">
+                            <i class="fas fa-download"></i> Export CSV
+                        </button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Sale ID</th>
+                                    <th>Customer</th>
+                                    <th>Branch</th>
+                                    <th>Items</th>
+                                    <th>Subtotal</th>
+                                    <th>Discount</th>
+                                    <th>Tax</th>
+                                    <th>Grand Total</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="salesReportTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== PRODUCTS REPORT ===== -->
+            <div id="reportProducts" style="display:none;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-star" style="color:var(--warning)"></i> Top Selling Products</h3>
+                        </div>
+                        <div style="padding:20px;">
+                            <canvas id="topProductsChart" height="200"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-tags" style="color:var(--primary)"></i> Sales by Category</h3>
+                        </div>
+                        <div style="padding:20px;">
+                            <canvas id="categoryReportChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-box" style="color:var(--primary)"></i> Product Performance</h3>
+                        <button class="btn btn-outline btn-sm" onclick="exportProductsCSV()">
+                            <i class="fas fa-download"></i> Export CSV
+                        </button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>SKU</th>
+                                    <th>Category</th>
+                                    <th>Qty Sold</th>
+                                    <th>Revenue</th>
+                                    <th>Cost</th>
+                                    <th>Profit</th>
+                                    <th>Margin %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsReportTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== INVENTORY REPORT ===== -->
+            <div id="reportInventory" style="display:none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-warehouse" style="color:var(--primary)"></i> Inventory Valuation Report</h3>
+                        <button class="btn btn-outline btn-sm" onclick="exportInventoryCSV()">
+                            <i class="fas fa-download"></i> Export CSV
+                        </button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>SKU</th>
+                                    <th>Branch</th>
+                                    <th>Qty on Hand</th>
+                                    <th>Unit Cost</th>
+                                    <th>Total Value</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryReportTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== EMPLOYEES REPORT ===== -->
+            <div id="reportEmployees" style="display:none;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-users" style="color:var(--primary)"></i> Staff by Department</h3>
+                        </div>
+                        <div style="padding:20px;">
+                            <canvas id="deptChart" height="200"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-bar" style="color:var(--success)"></i> Sales by Employee</h3>
+                        </div>
+                        <div style="padding:20px;">
+                            <canvas id="empSalesChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user-tie" style="color:var(--primary)"></i> Employee Performance</h3>
+                        <button class="btn btn-outline btn-sm" onclick="exportEmployeesCSV()">
+                            <i class="fas fa-download"></i> Export CSV
+                        </button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Role</th>
+                                    <th>Department</th>
+                                    <th>Total Sales</th>
+                                    <th>Orders</th>
+                                    <th>Avg Order</th>
+                                    <th>Salary</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeesReportTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/reports.js"></script>
+</body>
+</html>

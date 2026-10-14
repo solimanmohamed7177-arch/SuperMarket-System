@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Point of Sale - SuperMarket MS</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/pos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-store"></i>
+            <div><h2>SuperMarket</h2><span>Management System</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Main</div>
+            <a href="dashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <div class="nav-section-title">Sales</div>
+            <a href="sales.html" class="nav-item active"><i class="fas fa-cash-register"></i> Point of Sale</a>
+            <a href="sales-return.html" class="nav-item"><i class="fas fa-undo"></i> Sales Returns</a>
+            <a href="shifts.html" class="nav-item"><i class="fas fa-clock"></i> Shifts</a>
+            <div class="nav-section-title">Inventory</div>
+            <a href="products.html" class="nav-item"><i class="fas fa-box"></i> Products</a>
+            <a href="categories.html" class="nav-item"><i class="fas fa-tags"></i> Categories</a>
+            <a href="inventory.html" class="nav-item"><i class="fas fa-warehouse"></i> Inventory</a>
+            <a href="purchase-orders.html" class="nav-item"><i class="fas fa-truck"></i> Purchase Orders</a>
+            <div class="nav-section-title">CRM</div>
+            <a href="customers.html" class="nav-item"><i class="fas fa-users"></i> Customers</a>
+            <a href="loyalty.html" class="nav-item"><i class="fas fa-star"></i> Loyalty Program</a>
+            <a href="discounts.html" class="nav-item"><i class="fas fa-percent"></i> Discounts</a>
+            <div class="nav-section-title">Management</div>
+            <a href="employees.html" class="nav-item"><i class="fas fa-user-tie"></i> Employees</a>
+            <a href="suppliers.html" class="nav-item"><i class="fas fa-industry"></i> Suppliers</a>
+            <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div>
+                    <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role" id="userRole">Manager</div>
+                </div>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <header class="top-header">
+            <button class="icon-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <div class="header-title">
+                <h2>Point of Sale</h2>
+                <p id="posDate">Today</p>
+            </div>
+            <div class="header-actions">
+                <span style="font-size:13px;color:var(--secondary);">Cashier: <strong id="cashierName">Admin</strong></span>
+                <button class="icon-btn"><i class="fas fa-bell"></i></button>
+            </div>
+        </header>
+
+        <div class="page-content" style="padding:15px;">
+            <div class="pos-layout">
+
+                <!-- LEFT: PRODUCT PANEL -->
+                <div class="pos-products-panel">
+
+                    <!-- Barcode Scanner -->
+                    <div class="pos-scanner">
+                        <div class="scanner-input-wrap">
+                            <i class="fas fa-barcode"></i>
+                            <input type="text" id="barcodeInput" placeholder="Scan barcode or search product..." autofocus>
+                            <button onclick="searchByBarcode()"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Category Filter Tabs -->
+                    <div class="pos-category-tabs" id="categoryTabs">
+                        <button class="cat-tab active" onclick="filterByCategory(null, this)">All</button>
+                    </div>
+
+                    <!-- Products Grid -->
+                    <div class="pos-products-grid" id="productsGrid">
+                        <!-- Products loaded here -->
+                    </div>
+                </div>
+
+                <!-- RIGHT: CART PANEL -->
+                <div class="pos-cart-panel">
+
+                    <!-- Customer Select -->
+                    <div class="cart-customer">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <i class="fas fa-user-circle" style="font-size:24px;color:var(--primary);"></i>
+                            <select class="form-control form-select" id="customerSelect" style="flex:1;">
+                                <option value="">Walk-in Customer</option>
+                            </select>
+                            <button class="btn btn-outline btn-sm" onclick="openNewCustomerModal()">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Cart Items -->
+                    <div class="cart-items-wrap">
+                        <div class="cart-header">
+                            <span><i class="fas fa-shopping-cart"></i> Cart Items</span>
+                            <button class="btn btn-danger btn-sm" onclick="clearCart()">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </div>
+                        <div class="cart-items" id="cartItems">
+                            <div class="cart-empty">
+                                <i class="fas fa-shopping-cart"></i>
+                                <p>Cart is empty</p>
+                                <span>Click products to add them</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cart Totals -->
+                    <div class="cart-totals">
+                        <div class="total-row">
+                            <span>Subtotal</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Discount</span>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <input type="number" id="discountInput" class="form-control" style="width:70px;padding:4px 8px;font-size:13px;" value="0" min="0" max="100" oninput="recalculate()">
+                                <span>%</span>
+                                <span id="discountAmount" style="color:var(--danger);">-$0.00</span>
+                            </div>
+                        </div>
+                        <div class="total-row">
+                            <span>Tax</span>
+                            <span id="taxTotal">$0.00</span>
+                        </div>
+                        <div class="total-row grand">
+                            <span>GRAND TOTAL</span>
+                            <span id="grandTotal">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="payment-methods">
+                        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Payment Method</div>
+                        <div class="pay-methods-grid">
+                            <button class="pay-method active" data-method="cash" onclick="selectPayMethod(this)">
+                                <i class="fas fa-money-bill-wave"></i> Cash
+                            </button>
+                            <button class="pay-method" data-method="card" onclick="selectPayMethod(this)">
+                                <i class="fas fa-credit-card"></i> Card
+                            </button>
+                            <button class="pay-method" data-method="mobile_money" onclick="selectPayMethod(this)">
+                                <i class="fas fa-mobile-alt"></i> Mobile
+                            </button>
+                            <button class="pay-method" data-method="loyalty_points" onclick="selectPayMethod(this)">
+                                <i class="fas fa-star"></i> Points
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Cash Tendered (shown for cash) -->
+                    <div class="cash-tendered" id="cashTenderedSection">
+                        <label style="font-size:13px;font-weight:600;">Cash Tendered</label>
+                        <input type="number" class="form-control" id="cashTendered" placeholder="0.00" oninput="calcChange()">
+                        <div class="change-display" id="changeDisplay">
+                            Change: <strong id="changeAmount">$0.00</strong>
+                        </div>
+                        <!-- Quick cash buttons -->
+                        <div class="quick-cash">
+                            <button onclick="setQuickCash(5)">$5</button>
+                            <button onclick="setQuickCash(10)">$10</button>
+                            <button onclick="setQuickCash(20)">$20</button>
+                            <button onclick="setQuickCash(50)">$50</button>
+                            <button onclick="setQuickCash(100)">$100</button>
+                        </div>
+                    </div>
+
+                    <!-- Checkout Button -->
+                    <button class="btn-checkout" onclick="processCheckout()">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Complete Sale</span>
+                        <strong id="checkoutTotal">$0.00</strong>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- RECEIPT MODAL -->
+<div class="modal-overlay" id="receiptModal">
+    <div class="modal" style="max-width:400px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-receipt"></i> Sale Receipt</h3>
+            <button class="modal-close" onclick="closeModal('receiptModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="receiptContent" style="font-family:monospace;">
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('receiptModal')">Close</button>
+            <button class="btn btn-primary" onclick="printReceipt()"><i class="fas fa-print"></i> Print</button>
+            <button class="btn btn-success" onclick="newSale()"><i class="fas fa-plus"></i> New Sale</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/sales.js"></script>
+</body>
+</html>

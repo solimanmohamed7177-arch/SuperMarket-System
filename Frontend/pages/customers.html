@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers - SuperMarket MS</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-store"></i>
+            <div><h2>SuperMarket</h2><span>Management System</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Main</div>
+            <a href="dashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <div class="nav-section-title">Sales</div>
+            <a href="sales.html" class="nav-item"><i class="fas fa-cash-register"></i> Point of Sale</a>
+            <a href="sales-return.html" class="nav-item"><i class="fas fa-undo"></i> Sales Returns</a>
+            <a href="shifts.html" class="nav-item"><i class="fas fa-clock"></i> Shifts</a>
+            <div class="nav-section-title">Inventory</div>
+            <a href="products.html" class="nav-item"><i class="fas fa-box"></i> Products</a>
+            <a href="categories.html" class="nav-item"><i class="fas fa-tags"></i> Categories</a>
+            <a href="inventory.html" class="nav-item"><i class="fas fa-warehouse"></i> Inventory</a>
+            <a href="purchase-orders.html" class="nav-item"><i class="fas fa-truck"></i> Purchase Orders</a>
+            <div class="nav-section-title">CRM</div>
+            <a href="customers.html" class="nav-item active"><i class="fas fa-users"></i> Customers</a>
+            <a href="loyalty.html" class="nav-item"><i class="fas fa-star"></i> Loyalty Program</a>
+            <a href="discounts.html" class="nav-item"><i class="fas fa-percent"></i> Discounts</a>
+            <div class="nav-section-title">Management</div>
+            <a href="employees.html" class="nav-item"><i class="fas fa-user-tie"></i> Employees</a>
+            <a href="suppliers.html" class="nav-item"><i class="fas fa-industry"></i> Suppliers</a>
+            <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div>
+                    <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role" id="userRole">Manager</div>
+                </div>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="top-header">
+            <button class="icon-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <div class="header-title">
+                <h2>Customers</h2>
+                <p>Manage customers and loyalty</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="openAddModal()">
+                    <i class="fas fa-plus"></i> Add Customer
+                </button>
+                <button class="icon-btn"><i class="fas fa-bell"></i><span class="notif-dot"></span></button>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+                    <div class="stat-info"><h3 id="statTotal">0</h3><p>Total Customers</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-info"><h3 id="statActive">0</h3><p>Active</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-crown"></i></div>
+                    <div class="stat-info"><h3 id="statVIP">0</h3><p>VIP Customers</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fas fa-star"></i></div>
+                    <div class="stat-info"><h3 id="statLoyalty">0</h3><p>Loyalty Members</p></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-users" style="color:var(--primary)"></i> Customer List</h3>
+                    <div class="card-actions">
+                        <div class="header-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search customers..." oninput="filterCustomers()">
+                        </div>
+                        <select class="form-control form-select" id="typeFilter" onchange="filterCustomers()" style="width:130px;">
+                            <option value="">All Types</option>
+                            <option value="Regular">Regular</option>
+                            <option value="VIP">VIP</option>
+                        </select>
+                        <select class="form-control form-select" id="statusFilter" onchange="filterCustomers()" style="width:130px;">
+                            <option value="">All Status</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                        <button class="btn btn-outline btn-sm" onclick="exportCSV()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th>Type</th>
+                                <th>Registered</th>
+                                <th>Loyalty Card</th>
+                                <th>Points</th>
+                                <th>Tier</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customersTable">
+                            <tr><td colspan="8" style="text-align:center;padding:40px;">
+                                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <div class="pagination-info" id="paginationInfo"></div>
+                    <div class="pagination-controls" id="paginationControls"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="customerModal">
+    <div class="modal" style="max-width:480px;">
+        <div class="modal-header">
+            <h3 id="modalTitle"><i class="fas fa-plus"></i> Add Customer</h3>
+            <button class="modal-close" onclick="closeModal('customerModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="customerForm">
+                <input type="hidden" id="customerId">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" class="form-control" id="cusName" placeholder="Enter customer name" required>
+                </div>
+                <div class="form-group">
+                    <label>Customer Type</label>
+                    <select class="form-control form-select" id="cusType">
+                        <option value="Regular">Regular</option>
+                        <option value="VIP">VIP</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select class="form-control form-select" id="cusStatus">
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
+                    </select>
+                                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('customerModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveCustomer()">
+                <i class="fas fa-save"></i> Save Customer
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal" style="max-width:420px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-trash" style="color:var(--danger)"></i> Delete Customer</h3>
+            <button class="modal-close" onclick="closeModal('deleteModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" style="text-align:center;padding:30px;">
+            <i class="fas fa-exclamation-triangle" style="font-size:48px;color:var(--warning);margin-bottom:15px;display:block;"></i>
+            <h4>Are you sure?</h4>
+            <p style="color:var(--secondary);margin-top:8px;">
+                This will permanently delete <strong id="deleteCustomerName"></strong>.
+                This action cannot be undone.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('deleteModal')">Cancel</button>
+            <button class="btn btn-danger" onclick="confirmDelete()">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/customers.js"></script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory - SuperMarket MS</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-store"></i>
+            <div><h2>SuperMarket</h2><span>Management System</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Main</div>
+            <a href="dashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <div class="nav-section-title">Sales</div>
+            <a href="sales.html" class="nav-item"><i class="fas fa-cash-register"></i> Point of Sale</a>
+            <a href="sales-return.html" class="nav-item"><i class="fas fa-undo"></i> Sales Returns</a>
+            <a href="shifts.html" class="nav-item"><i class="fas fa-clock"></i> Shifts</a>
+            <div class="nav-section-title">Inventory</div>
+            <a href="products.html" class="nav-item"><i class="fas fa-box"></i> Products</a>
+            <a href="categories.html" class="nav-item"><i class="fas fa-tags"></i> Categories</a>
+            <a href="inventory.html" class="nav-item active"><i class="fas fa-warehouse"></i> Inventory</a>
+            <a href="purchase-orders.html" class="nav-item"><i class="fas fa-truck"></i> Purchase Orders</a>
+            <div class="nav-section-title">CRM</div>
+            <a href="customers.html" class="nav-item"><i class="fas fa-users"></i> Customers</a>
+            <a href="loyalty.html" class="nav-item"><i class="fas fa-star"></i> Loyalty Program</a>
+            <a href="discounts.html" class="nav-item"><i class="fas fa-percent"></i> Discounts</a>
+            <div class="nav-section-title">Management</div>
+            <a href="employees.html" class="nav-item"><i class="fas fa-user-tie"></i> Employees</a>
+            <a href="suppliers.html" class="nav-item"><i class="fas fa-industry"></i> Suppliers</a>
+            <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div>
+                    <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role" id="userRole">Manager</div>
+                </div>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <header class="top-header">
+            <button class="icon-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <div class="header-title">
+                <h2>Inventory Management</h2>
+                <p>Track stock levels and movements</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="openAdjustModal()">
+                    <i class="fas fa-sliders-h"></i> Stock Adjustment
+                </button>
+                <button class="icon-btn"><i class="fas fa-bell"></i><span class="notif-dot"></span></button>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <!-- STATS -->
+            <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-boxes"></i></div>
+                    <div class="stat-info"><h3 id="statTotalItems">0</h3><p>Total SKUs</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-info"><h3 id="statInStock">0</h3><p>In Stock</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-info"><h3 id="statLowStock">0</h3><p>Low Stock</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red"><i class="fas fa-times-circle"></i></div>
+                    <div class="stat-info"><h3 id="statOutOfStock">0</h3><p>Out of Stock</p></div>
+                </div>
+            </div>
+
+            <!-- TABS -->
+            <div style="display:flex;gap:10px;margin-bottom:20px;">
+                <button class="btn btn-primary" id="tabStock" onclick="switchTab('stock')">
+                    <i class="fas fa-warehouse"></i> Stock Levels
+                </button>
+                <button class="btn btn-outline" id="tabMovements" onclick="switchTab('movements')">
+                    <i class="fas fa-exchange-alt"></i> Movement History
+                </button>
+            </div>
+
+            <!-- STOCK LEVELS TABLE -->
+            <div id="stockPanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-warehouse" style="color:var(--primary)"></i> Current Stock Levels</h3>
+                        <div class="card-actions">
+                            <div class="header-search">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="stockSearch" placeholder="Search products..." oninput="filterStock()">
+                            </div>
+                            <select class="form-control form-select" id="branchFilter" onchange="filterStock()" style="width:150px;">
+                                <option value="">All Branches</option>
+                                <option value="1">Main Branch</option>
+                                <option value="2">Branch 2</option>
+                            </select>
+                            <select class="form-control form-select" id="stockStatusFilter" onchange="filterStock()" style="width:140px;">
+                                <option value="">All Status</option>
+                                <option value="low">Low Stock</option>
+                                <option value="out">Out of Stock</option>
+                                <option value="ok">In Stock</option>
+                            </select>
+                            <button class="btn btn-outline btn-sm" onclick="exportStockCSV()">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>SKU</th>
+                                    <th>Branch</th>
+                                    <th>Current Stock</th>
+                                    <th>Unit</th>
+                                    <th>Stock Status</th>
+                                    <th>Last Updated</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockTable">
+                                <tr><td colspan="8" style="text-align:center;padding:40px;">
+                                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination">
+                        <div class="pagination-info" id="stockPaginationInfo"></div>
+                        <div class="pagination-controls" id="stockPaginationControls"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MOVEMENT HISTORY TABLE -->
+            <div id="movementsPanel" style="display:none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-exchange-alt" style="color:var(--info)"></i> Inventory Movements</h3>
+                        <div class="card-actions">
+                            <div class="header-search">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="movSearch" placeholder="Search..." oninput="filterMovements()">
+                            </div>
+                            <select class="form-control form-select" id="movTypeFilter" onchange="filterMovements()" style="width:170px;">
+                                <option value="">All Types</option>
+                                <option value="purchase_receive">Purchase Receive</option>
+                                <option value="sale">Sale</option>
+                                <option value="sale_return">Sale Return</option>
+                                <option value="adjustment_in">Adjustment In</option>
+                                <option value="adjustment_out">Adjustment Out</option>
+                                <option value="transfer_in">Transfer In</option>
+                                <option value="transfer_out">Transfer Out</option>
+                                <option value="write_off">Write Off</option>
+                            </select>
+                            <input type="date" class="form-control" id="movDateFrom" onchange="filterMovements()" style="width:145px;">
+                            <input type="date" class="form-control" id="movDateTo" onchange="filterMovements()" style="width:145px;">
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Product</th>
+                                    <th>Branch</th>
+                                    <th>Movement Type</th>
+                                    <th>Qty Change</th>
+                                    <th>Qty After</th>
+                                    <th>Reference</th>
+                                    <th>Employee</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movementsTable">
+                                <tr><td colspan="8" style="text-align:center;padding:40px;">
+                                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination">
+                        <div class="pagination-info" id="movPaginationInfo"></div>
+                        <div class="pagination-controls" id="movPaginationControls"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- STOCK ADJUSTMENT MODAL -->
+<div class="modal-overlay" id="adjustModal">
+    <div class="modal" style="max-width:500px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-sliders-h"></i> Stock Adjustment</h3>
+            <button class="modal-close" onclick="closeModal('adjustModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Product *</label>
+                    <select class="form-control form-select" id="adjProduct" required>
+                        <option value="">Select Product</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Branch *</label>
+                    <select class="form-control form-select" id="adjBranch" required>
+                        <option value="1">Main Branch</option>
+                        <option value="2">Branch 2</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Adjustment Type *</label>
+                    <select class="form-control form-select" id="adjType" required>
+                        <option value="adjustment_in">Adjustment In (+)</option>
+                        <option value="adjustment_out">Adjustment Out (-)</option>
+                        <option value="write_off">Write Off (-)</option>
+                        <option value="opening stock">Opening Stock</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Quantity *</label>
+                    <input type="number" class="form-control" id="adjQty" min="0.001" step="0.001" placeholder="0.000" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>Reason / Notes</label>
+                    <textarea class="form-control" id="adjReason" rows="3" placeholder="Reason for adjustment..."></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <div style="background:var(--light);border-radius:var(--radius);padding:12px;font-size:13px;">
+                        <strong>Current Stock:</strong>
+                        <span id="currentStockDisplay" style="color:var(--primary);font-weight:700;margin-left:8px;">Select a product</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('adjustModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveAdjustment()">
+                <i class="fas fa-save"></i> Save Adjustment
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/inventory.js"></script>
+</body>
+</html>

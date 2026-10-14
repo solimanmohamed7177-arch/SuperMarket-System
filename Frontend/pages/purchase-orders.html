@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Orders - SuperMarket MS</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-store"></i>
+            <div><h2>SuperMarket</h2><span>Management System</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Main</div>
+            <a href="dashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <div class="nav-section-title">Sales</div>
+            <a href="sales.html" class="nav-item"><i class="fas fa-cash-register"></i> Point of Sale</a>
+            <a href="sales-return.html" class="nav-item"><i class="fas fa-undo"></i> Sales Returns</a>
+            <a href="shifts.html" class="nav-item"><i class="fas fa-clock"></i> Shifts</a>
+            <div class="nav-section-title">Inventory</div>
+            <a href="products.html" class="nav-item"><i class="fas fa-box"></i> Products</a>
+            <a href="categories.html" class="nav-item"><i class="fas fa-tags"></i> Categories</a>
+            <a href="inventory.html" class="nav-item"><i class="fas fa-warehouse"></i> Inventory</a>
+            <a href="purchase-orders.html" class="nav-item active"><i class="fas fa-truck"></i> Purchase Orders</a>
+            <div class="nav-section-title">CRM</div>
+            <a href="customers.html" class="nav-item"><i class="fas fa-users"></i> Customers</a>
+            <a href="loyalty.html" class="nav-item"><i class="fas fa-star"></i> Loyalty Program</a>
+            <a href="discounts.html" class="nav-item"><i class="fas fa-percent"></i> Discounts</a>
+            <div class="nav-section-title">Management</div>
+            <a href="employees.html" class="nav-item"><i class="fas fa-user-tie"></i> Employees</a>
+            <a href="suppliers.html" class="nav-item"><i class="fas fa-industry"></i> Suppliers</a>
+            <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div>
+                    <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role" id="userRole">Manager</div>
+                </div>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="top-header">
+            <button class="icon-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <div class="header-title">
+                <h2>Purchase Orders</h2>
+                <p>Manage supplier purchase orders</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="openCreatePOModal()">
+                    <i class="fas fa-plus"></i> Create PO
+                </button>
+                <button class="icon-btn"><i class="fas fa-bell"></i><span class="notif-dot"></span></button>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <!-- STATS -->
+            <div class="stats-grid" style="grid-template-columns:repeat(5,1fr);">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-file-alt"></i></div>
+                    <div class="stat-info"><h3 id="statTotal">0</h3><p>Total POs</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+                    <div class="stat-info"><h3 id="statPending">0</h3><p>Pending</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-truck"></i></div>
+                    <div class="stat-info"><h3 id="statOrdered">0</h3><p>Ordered</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-info"><h3 id="statReceived">0</h3><p>Received</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red"><i class="fas fa-times-circle"></i></div>
+                    <div class="stat-info"><h3 id="statCancelled">0</h3><p>Cancelled</p></div>
+                </div>
+            </div>
+
+            <!-- PO TABLE -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-truck" style="color:var(--primary)"></i> Purchase Orders</h3>
+                    <div class="card-actions">
+                        <div class="header-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="poSearch" placeholder="Search POs..." oninput="filterPOs()">
+                        </div>
+                        <select class="form-control form-select" id="poStatusFilter" onchange="filterPOs()" style="width:160px;">
+                            <option value="">All Status</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Ordered">Ordered</option>
+                            <option value="Received">Received</option>
+                            <option value="Partially Received">Partially Received</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                        <button class="btn btn-outline btn-sm" onclick="exportPOCSV()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>PO Number</th>
+                                <th>Supplier</th>
+                                <th>Branch</th>
+                                <th>Order Date</th>
+                                <th>Expected Date</th>
+                                <th>Total Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="poTable">
+                            <tr><td colspan="8" style="text-align:center;padding:40px;">
+                                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <div class="pagination-info" id="poPaginationInfo"></div>
+                    <div class="pagination-controls" id="poPaginationControls"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CREATE PO MODAL -->
+<div class="modal-overlay" id="createPOModal">
+    <div class="modal" style="max-width:750px;">
+        <div class="modal-header">
+            <h3 id="poModalTitle"><i class="fas fa-plus"></i> Create Purchase Order</h3>
+            <button class="modal-close" onclick="closeModal('createPOModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Supplier *</label>
+                    <select class="form-control form-select" id="poSupplier" required>
+                        <option value="">Select Supplier</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Branch *</label>
+                    <select class="form-control form-select" id="poBranch" required>
+                        <option value="1
+                                                <option value="1">Main Branch</option>
+                        <option value="2">Branch 2</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Order Date *</label>
+                    <input type="date" class="form-control" id="poOrderDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Expected Delivery Date</label>
+                    <input type="date" class="form-control" id="poExpectedDate">
+                </div>
+            </div>
+
+            <!-- PO ITEMS -->
+            <div style="margin-top:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <h4 style="font-size:14px;font-weight:700;">
+                        <i class="fas fa-list" style="color:var(--primary)"></i> Order Items
+                    </h4>
+                    <button class="btn btn-outline btn-sm" onclick="addPOItemRow()">
+                        <i class="fas fa-plus"></i> Add Item
+                    </button>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table style="font-size:13px;">
+                        <thead>
+                            <tr>
+                                <th style="min-width:200px;">Product</th>
+                                <th style="min-width:100px;">Qty Ordered</th>
+                                <th style="min-width:120px;">Unit Cost ($)</th>
+                                <th style="min-width:110px;">Line Total</th>
+                                <th style="width:50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="poItemsBody">
+                            <!-- rows added dynamically -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" style="text-align:right;padding:12px 16px;font-weight:700;">
+                                    Total Amount:
+                                </td>
+                                <td style="padding:12px 16px;">
+                                    <strong id="poTotalAmount" style="color:var(--primary);font-size:15px;">$0.00</strong>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('createPOModal')">Cancel</button>
+            <button class="btn btn-warning" onclick="savePO('Pending')">
+                <i class="fas fa-save"></i> Save as Draft
+            </button>
+            <button class="btn btn-primary" onclick="savePO('Ordered')">
+                <i class="fas fa-paper-plane"></i> Submit Order
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW / RECEIVE PO MODAL -->
+<div class="modal-overlay" id="viewPOModal">
+    <div class="modal" style="max-width:750px;">
+        <div class="modal-header">
+            <h3 id="viewPOTitle"><i class="fas fa-eye"></i> Purchase Order Details</h3>
+            <button class="modal-close" onclick="closeModal('viewPOModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="viewPOBody">
+        </div>
+        <div class="modal-footer" id="viewPOFooter">
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/purchase-orders.js"></script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shifts - SuperMarket MS</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-store"></i>
+            <div><h2>SuperMarket</h2><span>Management System</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Main</div>
+            <a href="dashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <div class="nav-section-title">Sales</div>
+            <a href="sales.html" class="nav-item"><i class="fas fa-cash-register"></i> Point of Sale</a>
+            <a href="sales-return.html" class="nav-item"><i class="fas fa-undo"></i> Sales Returns</a>
+            <a href="shifts.html" class="nav-item active"><i class="fas fa-clock"></i> Shifts</a>
+            <div class="nav-section-title">Inventory</div>
+            <a href="products.html" class="nav-item"><i class="fas fa-box"></i> Products</a>
+            <a href="categories.html" class="nav-item"><i class="fas fa-tags"></i> Categories</a>
+            <a href="inventory.html" class="nav-item"><i class="fas fa-warehouse"></i> Inventory</a>
+            <a href="purchase-orders.html" class="nav-item"><i class="fas fa-truck"></i> Purchase Orders</a>
+            <div class="nav-section-title">CRM</div>
+            <a href="customers.html" class="nav-item"><i class="fas fa-users"></i> Customers</a>
+            <a href="loyalty.html" class="nav-item"><i class="fas fa-star"></i> Loyalty Program</a>
+            <a href="discounts.html" class="nav-item"><i class="fas fa-percent"></i> Discounts</a>
+            <div class="nav-section-title">Management</div>
+            <a href="employees.html" class="nav-item"><i class="fas fa-user-tie"></i> Employees</a>
+            <a href="suppliers.html" class="nav-item"><i class="fas fa-industry"></i> Suppliers</a>
+            <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div>
+                    <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role" id="userRole">Manager</div>
+                </div>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="top-header">
+            <button class="icon-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <div class="header-title">
+                <h2>Shifts Management</h2>
+                <p>Track cashier shifts and cash flow</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="openStartShiftModal()">
+                    <i class="fas fa-play"></i> Start Shift
+                </button>
+                <button class="icon-btn"><i class="fas fa-bell"></i><span class="notif-dot"></span></button>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <!-- ACTIVE SHIFTS BANNER -->
+            <div id="activeShiftsBanner" style="display:none;
+                background:linear-gradient(135deg,var(--success),#15803d);
+                border-radius:var(--radius-lg);padding:16px 22px;
+                margin-bottom:20px;color:white;
+                display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <i class="fas fa-circle" style="color:#86efac;font-size:10px;animation:pulse 2s infinite;"></i>
+                    <strong id="activeShiftInfo">Active shift running</strong>
+                </div>
+                <button class="btn btn-outline btn-sm"
+                    style="border-color:white;color:white;" onclick="openCloseShiftModal()">
+                    <i class="fas fa-stop"></i> Close Shift
+                </button>
+            </div>
+
+            <!-- STATS -->
+            <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-clock"></i></div>
+                    <div class="stat-info"><h3 id="statTotal">0</h3><p>Total Shifts</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-circle"></i></div>
+                    <div class="stat-info"><h3 id="statOpen">0</h3><p>Open Shifts</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="stat-info"><h3 id="statCash">$0</h3><p>Total Opening Cash</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fas fa-cash-register"></i></div>
+                    <div class="stat-info"><h3 id="statRegisters">0</h3><p>Active Registers</p></div>
+                </div>
+            </div>
+
+            <!-- SHIFTS TABLE -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-clock" style="color:var(--primary)"></i> Shift History</h3>
+                    <div class="card-actions">
+                        <div class="header-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search shifts..." oninput="filterShifts()">
+                        </div>
+                        <select class="form-control form-select" id="statusFilter" onchange="filterShifts()" style="width:130px;">
+                            <option value="">All Status</option>
+                            <option value="open">Open</option>
+                            <option value="closed">Closed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                        <input type="date" class="form-control" id="dateFilter" onchange="filterShifts()" style="width:150px;">
+                        <button class="btn btn-outline btn-sm" onclick="exportCSV()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Shift ID</th>
+                                <th>Employee</th>
+                                <th>Register</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Opening Cash</th>
+                                <th>Closing Cash</th>
+                                <th>Difference</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shiftsTable">
+                            <tr><td colspan="10" style="text-align:center;padding:40px;">
+                                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <div class="pagination-info" id="paginationInfo"></div>
+                    <div class="pagination-controls" id="paginationControls"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- START SHIFT MODAL -->
+<div class="modal-overlay" id="startShiftModal">
+    <div class="modal" style="max-width:440px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-play" style="color:var(--success)"></i> Start New Shift</h3>
+            <button class="modal-close" onclick="closeModal('startShiftModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Employee *</label>
+                <select class="form-control form-select" id="shiftEmployee">
+                    <option value="1">John Doe</option>
+                    <option value="2">Jane Smith</option>
+                    <option value="3">Bob Johnson</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Register *</label>
+                <select class="form-control form-select" id="shiftRegister">
+                    <option value="1">Register 1 — Main Branch</option>
+                    <option value="2">Register 2 — Main Branch</option>
+                    <option value="3">Register 1 — Branch 2</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Opening Cash ($) *</label>
+                <input type="number" class="form-control" id="openingCash"
+                    placeholder="0.00" step="0.01" min="0" value="200.00">
+            </div>
+            <div style="background:var(--light);border-radius:var(--radius);padding:12px;font-size:13px;">
+                <i class="fas fa-info-circle" style="color:var(--info);"></i>
+                Shift will start at: <strong id="shiftStartTime"></strong>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('startShiftModal')">Cancel</button>
+            <button class="btn btn-success" onclick="startShift()">
+                <i class="fas fa-play"></i> Start Shift
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- CLOSE SHIFT MODAL -->
+<div class="modal-overlay" id="closeShiftModal">
+    <div class="modal" style="max-width:440px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-stop" style="color:var(--danger)"></i> Close Shift</h3>
+            <button class="modal-close" onclick="closeModal('closeShiftModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div id="closeShiftInfo" style="background:var(--light);border-radius:var(--radius);
+                padding:14px;margin-bottom:16px;font-size:13px;"></div>
+            <div class="form-group">
+                <label>Closing Cash Count ($) *</label>
+                <input type="number" class="form-control" id="closingCash"
+                    placeholder="0.00" step="0.01" min="0" oninput="calcCashDiff()">
+            </div>
+            <div id="cashDiffDisplay" style="border-radius:var(--radius);padding:12px;
+                font-size:14px;font-weight:600;text-align:center;display:none;">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('closeShiftModal')">Cancel</button>
+            <button class="btn btn-danger" onclick="closeShift()">
+                <i class="fas fa-stop"></i> Close Shift
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW SHIFT MODAL -->
+<div class="modal-overlay" id="viewShiftModal">
+    <div class="modal" style="max-width:500px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-clock"></i> Shift Details</h3>
+            <button class="modal-close" onclick="closeModal('viewShiftModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="viewShiftBody"></div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('viewShiftModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/shifts.js"></script>
+</body>
+</html>

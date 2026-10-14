@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Returns - SuperMarket MS</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-store"></i>
+            <div><h2>SuperMarket</h2><span>Management System</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Main</div>
+            <a href="dashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <div class="nav-section-title">Sales</div>
+            <a href="sales.html" class="nav-item"><i class="fas fa-cash-register"></i> Point of Sale</a>
+            <a href="sales-return.html" class="nav-item active"><i class="fas fa-undo"></i> Sales Returns</a>
+            <a href="shifts.html" class="nav-item"><i class="fas fa-clock"></i> Shifts</a>
+            <div class="nav-section-title">Inventory</div>
+            <a href="products.html" class="nav-item"><i class="fas fa-box"></i> Products</a>
+            <a href="categories.html" class="nav-item"><i class="fas fa-tags"></i> Categories</a>
+            <a href="inventory.html" class="nav-item"><i class="fas fa-warehouse"></i> Inventory</a>
+            <a href="purchase-orders.html" class="nav-item"><i class="fas fa-truck"></i> Purchase Orders</a>
+            <div class="nav-section-title">CRM</div>
+            <a href="customers.html" class="nav-item"><i class="fas fa-users"></i> Customers</a>
+            <a href="loyalty.html" class="nav-item"><i class="fas fa-star"></i> Loyalty Program</a>
+            <a href="discounts.html" class="nav-item"><i class="fas fa-percent"></i> Discounts</a>
+            <div class="nav-section-title">Management</div>
+            <a href="employees.html" class="nav-item"><i class="fas fa-user-tie"></i> Employees</a>
+            <a href="suppliers.html" class="nav-item"><i class="fas fa-industry"></i> Suppliers</a>
+            <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div>
+                    <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role" id="userRole">Manager</div>
+                </div>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="top-header">
+            <button class="icon-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <div class="header-title">
+                <h2>Sales Returns</h2>
+                <p>Process and manage refunds</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="openNewReturnModal()">
+                    <i class="fas fa-plus"></i> New Return
+                </button>
+                <button class="icon-btn"><i class="fas fa-bell"></i><span class="notif-dot"></span></button>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <!-- STATS -->
+            <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-undo"></i></div>
+                    <div class="stat-info"><h3 id="statTotal">0</h3><p>Total Returns</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="stat-info"><h3 id="statRefunded">$0</h3><p>Total Refunded</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-calendar-day"></i></div>
+                    <div class="stat-info"><h3 id="statToday">0</h3><p>Today's Returns</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fas fa-percentage"></i></div>
+                    <div class="stat-info"><h3 id="statRate">0%</h3><p>Return Rate</p></div>
+                </div>
+            </div>
+
+            <!-- RETURNS TABLE -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-undo" style="color:var(--danger)"></i> Returns List</h3>
+                    <div class="card-actions">
+                        <div class="header-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search returns..." oninput="filterReturns()">
+                        </div>
+                        <input type="date" class="form-control" id="dateFilter" onchange="filterReturns()" style="width:150px;">
+                        <button class="btn btn-outline btn-sm" onclick="exportCSV()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Return ID</th>
+                                <th>Original Sale</th>
+                                <th>Customer</th>
+                                <th>Items Returned</th>
+                                <th>Total Refund</th>
+                                <th>Reason</th>
+                                <th>Processed By</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="returnsTable">
+                            <tr><td colspan="9" style="text-align:center;padding:40px;">
+                                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <div class="pagination-info" id="paginationInfo"></div>
+                    <div class="pagination-controls" id="paginationControls"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NEW RETURN MODAL -->
+<div class="modal-overlay" id="newReturnModal">
+    <div class="modal" style="max-width:680px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-undo" style="color:var(--danger)"></i> Process New Return</h3>
+            <button class="modal-close" onclick="closeModal('newReturnModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <!-- Step 1: Find Sale -->
+            <div id="step1">
+                <div class="form-group">
+                    <label style="font-weight:700;">Step 1: Find Original Sale</label>
+                    <div style="display:flex;gap:10px;margin-top:8px;">
+                        <input type="text" class="form-control" id="saleSearchInput"
+                            placeholder="Enter Sale ID (e.g. 1001)">
+                        <button class="btn btn-primary" onclick="findSale()">
+                            <i class="fas fa-search"></i> Find Sale
+                        </button>
+                    </div>
+                </div>
+                <div id="saleNotFound" style="display:none;" class="login-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Sale not found. Please check the Sale ID.</span>
+                </div>
+            </div>
+
+            <!-- Step 2: Select Items -->
+            <div id="step2" style="display:none;">
+                <div style="background:var(--light);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div>
+                            <strong>Sale #<span id="foundSaleId"></span></strong>
+                            <span style="margin-left:12px;color:var(--secondary);font-size:13px;">
+                                Customer: <strong id="foundCustomer"></strong>
+                            </span>
+                        </div>
+                        <span style="color:var(--success);font-weight:700;" id="foundTotal"></span>
+                    </div>
+                </div>
+
+                <label style="font-weight:700;display:block;margin-bottom:10px;">
+                    Step 2: Select Items to Return
+                </label>
+                <div class="table-wrapper" style="border:1px solid var(--border);border-radius:var(--radius);">
+                    <table style="font-size:13px;">
+                        <thead>
+                            <tr>
+                                <th style="width:40px;"></th>
+                                <th>Product</th>
+                                <th>Qty Purchased</th>
+                                <th>Unit Price</th>
+                                <th>Qty to Return</th>
+                                <th>Refund Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="returnItemsBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="form-group" style="margin-top:16px;">
+                    <label>Reason for Return *</label>
+                    <select class="form-control form-select" id="returnReason">
+                        <option value="">Select reason...</option>
+                        <option value="Defective product">Defective product</option>
+                        <option value="Wrong item received">Wrong item received</option>
+                        <option value="Customer changed mind">Customer changed mind</option>
+                        <option value="Expired product">Expired product</option>
+                        <option value="Damaged packaging">Damaged packaging</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Additional Notes</label>
+                    <textarea class="form-control" id="returnNotes" rows="2"
+                        placeholder="Any additional notes..."></textarea>
+                </div>
+
+                <div style="background:var(--light);border-radius:var(--radius);padding:14px;
+                    display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:15px;">Total Refund Amount:</span>
+                    <span style="font-weight:700;font-size:20px;color:var(--danger);"
+                        id="totalRefundDisplay">$0.00</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('newReturnModal')">Cancel</button>
+            <button class="btn btn-danger" id="processReturnBtn"
+                style="display:none;" onclick="processReturn()">
+                <i class="fas fa-undo"></i> Process Return & Refund
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW RETURN MODAL -->
+<div class="modal-overlay" id="viewReturnModal">
+    <div class="modal" style="max-width:560px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-file-alt"></i> Return Details</h3>
+            <button class="modal-close" onclick="closeModal('viewReturnModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="viewReturnBody"></div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('viewReturnModal')">Close</button>
+            <button class="btn btn-primary" onclick="printReturn()">
+                <i class="fas fa-print"></i> Print
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/sales-return.js"></script>
+</body>
+</html>
